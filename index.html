@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>論理クイズ200問</title>
+
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8398161859137802"
+     crossorigin="anonymous"></script>
+
+<style>
+body{margin:0;font-family:"Yu Gothic",sans-serif;background:#f4f7fb;color:#333}
+header{background:#263238;color:white;text-align:center;padding:20px}
+.layout{display:grid;grid-template-columns:180px 1fr 180px;gap:20px;max-width:1400px;margin:20px auto;padding:0 12px}
+.ad{background:white;border-radius:12px;padding:10px;min-height:300px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+main{background:white;border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.status{font-weight:bold}
+select{padding:10px;border-radius:8px;font-size:16px}
+.question{font-size:23px;line-height:1.8;margin-bottom:24px;background:#eef3f7;padding:18px;border-radius:12px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{border:none;border-radius:12px;padding:16px;font-size:17px;cursor:pointer;transition:.2s}
+.choice-btn{background:#dce7ef}
+.choice-btn:hover{background:#c6d8e3}
+.correct{background:#7bd389!important}
+.wrong{background:#ff8a80!important}
+.result{margin-top:20px;text-align:center;font-size:22px;font-weight:bold;min-height:36px}
+.next-btn,.restart-btn,.start-btn{margin-top:20px;width:100%;background:#263238;color:white}
+.final{text-align:center;font-size:28px;line-height:1.8}
+.note{text-align:center;font-size:13px;color:#666;margin-top:10px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.choices{grid-template-columns:1fr}.ad{min-height:auto}}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>論理クイズ200問</h1>
+  <p>推理・条件整理・矛盾発見に挑戦！</p>
+</header>
+
+<div class="layout">
+
+  <aside class="ad">
+    <!-- チェス -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8398161859137802"
+         data-ad-slot="5599163841"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        問題数：
+        <select id="questionCount">
+          <option value="10">10問</option>
+          <option value="20">20問</option>
+          <option value="30" selected>30問</option>
+        </select>
+      </div>
+      <div class="status" id="status">スタートしてください</div>
+    </div>
+
+    <button class="start-btn" id="startBtn">クイズ開始</button>
+
+    <div id="quizArea" style="display:none;">
+      <div class="question" id="question"></div>
+      <div class="choices" id="choices"></div>
+      <div class="result" id="result"></div>
+      <button class="next-btn" id="nextBtn">次の問題へ</button>
+      <button class="restart-btn" id="restartBtn">もう一度遊ぶ</button>
+      <div class="note">※娯楽用の論理クイズです。</div>
+    </div>
+  </main>
+
+  <aside class="ad">
+    <!-- チェス -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8398161859137802"
+         data-ad-slot="5599163841"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </aside>
+
+</div>
+
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<script>
+const baseQuestions = [
+  {
+    question:"AはBより背が高い。BはCより背が高い。一番背が高いのは？",
+    answer:"A",
+    choices:["A","B","C","決められない"]
+  },
+  {
+    question:"全ての犬は動物です。ポチは犬です。正しい結論は？",
+    answer:"ポチは動物",
+    choices:["ポチは動物","ポチは猫","全ての動物は犬","犬は植物"]
+  },
+  {
+    question:"赤い箱には必ずリンゴが入っています。この箱は赤い。中身は？",
+    answer:"リンゴ",
+    choices:["リンゴ","バナナ","空","分からない"]
+  },
+  {
+    question:"『雨が降れば地面が濡れる』。地面が濡れている。必ず雨が降った？",
+    answer:"必ずとは言えない",
+    choices:["必ず雨","必ず晴れ","必ずとは言えない","雪はない"]
+  },
+  {
+    question:"太郎は次郎より年上。三郎は太郎より年上。一番年上は？",
+    answer:"三郎",
+    choices:["太郎","次郎","三郎","同い年"]
+  },
+  {
+    question:"偶数は2で割り切れる。18は偶数。18は？",
+    answer:"2で割り切れる",
+    choices:["2で割り切れる","奇数","素数","分からない"]
+  },
+  {
+    question:"A、B、Cのうち、Aだけが真実を言う。A『Bは嘘つき』。正しい可能性が高いのは？",
+    answer:"Bは嘘つき",
+    choices:["Bは嘘つき","Aは嘘つき","Cだけ真実","全員真実"]
+  },
+  {
+    question:"箱Aは箱Bより重い。箱Bは箱Cより軽い。一番重いのは？",
+    answer:"決められない",
+    choices:["箱A","箱B","箱C","決められない"]
+  },
+  {
+    question:"全員が帽子を持っている。ケンはその中の一人。ケンは？",
+    answer:"帽子を持っている",
+    choices:["帽子を持っている","帽子を持っていない","靴を持っている","分からない"]
+  },
+  {
+    question:"『PならばQ』が正しい。Pが正しいなら？",
+    answer:"Qも正しい",
+    choices:["Qも正しい","Qは間違い","Pは間違い","何も言えない"]
+  },
+  {
+    question:"1番目は赤、2番目は青、3番目は赤、4番目は青。5番目は？",
+    answer:"赤",
+    choices:["赤","青","黄","緑"]
+  },
+  {
+    question:"Aは月曜か火曜に来る。今日Aは来た。今日が水曜である可能性は？",
+    answer:"ない",
+    choices:["ある","ない","半分","分からない"]
+  },
+  {
+    question:"全ての正方形は四角形。これは正しい？",
+    answer:"正しい",
+    choices:["正しい","間違い","場合による","分からない"]
+  },
+  {
+    question:"全ての四角形は正方形。これは正しい？",
+    answer:"間違い",
+    choices:["正しい","間違い","場合による","分からない"]
+  },
+  {
+    question:"AかBのどちらか一方だけが正しい。Aが正しいならBは？",
+    answer:"間違い",
+    choices:["正しい","間違い","どちらでもよい","分からない"]
+  },
+  {
+    question:"『今日は晴れなら外に出る』。今日は晴れ。どうする？",
+    answer:"外に出る",
+    choices:["外に出る","家にいる","雨になる","分からない"]
+  },
+  {
+    question:"3人のうち1人だけ嘘つき。A『私は嘘つきではない』。この発言だけで分かる？",
+    answer:"分からない",
+    choices:["Aが真実","Aが嘘つき","全員嘘つき","分からない"]
+  },
+  {
+    question:"AはBの左、CはBの右。真ん中は？",
+    answer:"B",
+    choices:["A","B","C","分からない"]
+  },
+  {
+    question:"黒いカードはすべて数字カード。このカードは黒い。これは？",
+    answer:"数字カード",
+    choices:["数字カード","文字カード","白いカード","分からない"]
+  },
+  {
+    question:"A>B、B>C、C>D。一番小さいのは？",
+    answer:"D",
+    choices:["A","B","C","D"]
+  }
+];
+
+const quizData = [];
+for(let i=1;i<=10;i++){
+  baseQuestions.forEach(q=>{
+    quizData.push({
+      question:`【${i}】${q.question}`,
+      answer:q.answer,
+      choices:[...q.choices]
+    });
+  });
+}
+
+let quizzes=[];
+let currentQuiz=0;
+let score=0;
+let answered=false;
+
+const startBtn=document.getElementById("startBtn");
+const quizArea=document.getElementById("quizArea");
+const questionEl=document.getElementById("question");
+const choicesEl=document.getElementById("choices");
+const resultEl=document.getElementById("result");
+const nextBtn=document.getElementById("nextBtn");
+const restartBtn=document.getElementById("restartBtn");
+const statusEl=document.getElementById("status");
+
+function shuffle(array){
+  return array.sort(()=>Math.random()-0.5);
+}
+
+startBtn.onclick=()=>{
+  const count=Number(document.getElementById("questionCount").value);
+  quizzes=shuffle([...quizData]).slice(0,count);
+  currentQuiz=0;
+  score=0;
+  startBtn.style.display="none";
+  quizArea.style.display="block";
+  loadQuiz();
+};
+
+function loadQuiz(){
+  answered=false;
+  resultEl.textContent="";
+  nextBtn.style.display="none";
+  choicesEl.innerHTML="";
+
+  const quiz=quizzes[currentQuiz];
+
+  statusEl.textContent=`第${currentQuiz+1}問 / ${quizzes.length}問 ｜ 正解 ${score}`;
+  questionEl.textContent=quiz.question;
+
+  shuffle([...quiz.choices]).forEach(choice=>{
+    const btn=document.createElement("button");
+    btn.textContent=choice;
+    btn.className="choice-btn";
+    btn.onclick=()=>checkAnswer(btn,choice);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function checkAnswer(button,selected){
+  if(answered)return;
+  answered=true;
+
+  const correctAnswer=quizzes[currentQuiz].answer;
+  const buttons=choicesEl.querySelectorAll("button");
+
+  buttons.forEach(btn=>{
+    if(btn.textContent===correctAnswer){
+      btn.classList.add("correct");
+    }
+  });
+
+  if(selected===correctAnswer){
+    score++;
+    button.classList.add("correct");
+    resultEl.textContent="正解！";
+  }else{
+    button.classList.add("wrong");
+    resultEl.textContent=`不正解！ 正解は「${correctAnswer}」`;
+  }
+
+  nextBtn.style.display="block";
+}
+
+nextBtn.onclick=()=>{
+  currentQuiz++;
+  if(currentQuiz<quizzes.length){
+    loadQuiz();
+  }else{
+    showFinal();
+  }
+};
+
+restartBtn.onclick=()=>{
+  location.reload();
+};
+
+function showFinal(){
+  const percent=Math.round((score/quizzes.length)*100);
+  let rank="";
+
+  if(percent>=90){
+    rank="Sランク：論理力かなり高い！";
+  }else if(percent>=70){
+    rank="Aランク：推理力あり！";
+  }else if(percent>=50){
+    rank="Bランク：基本はできています！";
+  }else{
+    rank="Cランク：もう一度挑戦！";
+  }
+
+  questionEl.innerHTML=`
+    <div class="final">
+      クイズ終了！<br>
+      ${quizzes.length}問中 ${score}問正解！<br>
+      正答率：${percent}%<br><br>
+      ${rank}
+    </div>
+  `;
+
+  choicesEl.innerHTML="";
+  resultEl.textContent="";
+  nextBtn.style.display="none";
+  restartBtn.style.display="block";
+  statusEl.textContent="終了";
+}
+</script>
+
+</body>
+</html>
